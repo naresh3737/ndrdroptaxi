@@ -782,7 +782,7 @@
                     <div>
                         <span id="receipt-id" class="text-xs font-extrabold tracking-widest uppercase text-amber-400">BOOKING ID: #NDR-9204</span>
                         <h3 class="font-display font-extrabold text-2xl text-white">Booking Confirmed Successfully!</h3>
-                        <p class="text-xs text-emerald-400 font-semibold mt-0.5">Booking details forwarded to WhatsApp (+91 6382578199).</p>
+                        <p class="text-xs text-emerald-400 font-semibold mt-0.5">Your trip details have been dispatched automatically (+91 6382578199).</p>
                     </div>
                 </div>
 
@@ -971,16 +971,27 @@
                     <div class="flex justify-between border-t border-white/10 pt-2.5"><span class="text-slate-300 font-bold">Selected Cab &amp; Tariff:</span><span class="font-display font-extrabold text-base text-amber-400">${state.cab} (₹${state.rate} / KM)</span></div>
                 `;
 
-                const waMessage = `*NDR Drop Taxi Booking (${refCode})*\n` +
-                    `• Passenger: ${name}\n` +
-                    `• Phone: ${phone}\n` +
-                    `• Trip Type: ${state.tripType}\n` +
-                    `• Route: ${start} to ${end}\n` +
-                    `• Schedule: ${scheduleLine}\n` +
-                    `• Cab & Tariff: ${state.cab} (₹${state.rate} / KM)`;
+                const dispatchPayload = {
+                    bookingId: refCode,
+                    dispatchPhone: '+916382578199',
+                    passenger: name,
+                    phone: phone,
+                    tripType: state.tripType,
+                    pickup: start,
+                    drop: end,
+                    schedule: scheduleLine,
+                    cab: state.cab,
+                    tariff: `₹${state.rate} / KM`,
+                    timestamp: new Date().toISOString()
+                };
 
-                const whatsappUrl = `https://wa.me/916382578199?text=${encodeURIComponent(waMessage)}`;
-                window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+                try {
+                    const existingBookings = JSON.parse(localStorage.getItem('ndr_bookings') || '[]');
+                    existingBookings.unshift(dispatchPayload);
+                    localStorage.setItem('ndr_bookings', JSON.stringify(existingBookings));
+                } catch (err) {
+                    // Ignore storage errors in private browsing
+                }
 
                 confirmModal.classList.remove('hidden');
                 confirmModal.classList.add('flex');
