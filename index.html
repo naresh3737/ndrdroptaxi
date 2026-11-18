@@ -782,7 +782,7 @@
                     <div>
                         <span id="receipt-id" class="text-xs font-extrabold tracking-widest uppercase text-amber-400">BOOKING ID: #NDR-9204</span>
                         <h3 class="font-display font-extrabold text-2xl text-white">Booking Confirmed Successfully!</h3>
-                        <p class="text-xs text-emerald-400 font-semibold mt-0.5">Your trip details have been dispatched automatically (+91 6382578199).</p>
+                        <p class="text-xs text-emerald-400 font-semibold mt-0.5">Opening WhatsApp (+91 6382578199) with your trip details...</p>
                     </div>
                 </div>
 
@@ -993,8 +993,31 @@
                     // Ignore storage errors in private browsing
                 }
 
+                // Build pre-filled WhatsApp message to +91 6382578199
+                const waMessage =
+                    `*NDR Drop Taxi Booking (${refCode})*\n` +
+                    `• Name: ${name}\n` +
+                    `• Phone: ${phone}\n` +
+                    `• Trip Type: ${state.tripType}\n` +
+                    `• Pickup: ${start}\n` +
+                    `• Drop: ${end}\n` +
+                    `• Date & Time: ${scheduleLine}\n` +
+                    `• Cab & Tariff: ${state.cab} (₹${state.rate} / KM)`;
+
+                const waUrl = `https://api.whatsapp.com/send?phone=916382578199&text=${encodeURIComponent(waMessage)}`;
+
+                // Show confirmation details modal with Done button
                 confirmModal.classList.remove('hidden');
                 confirmModal.classList.add('flex');
+
+                // Automatically launch WhatsApp with the pre-filled booking details
+                const waLink = document.createElement('a');
+                waLink.href = waUrl;
+                waLink.target = '_blank';
+                waLink.rel = 'noopener noreferrer';
+                document.body.appendChild(waLink);
+                waLink.click();
+                document.body.removeChild(waLink);
             });
 
             const doneConfirmBtn = document.getElementById('done-confirm-btn');
